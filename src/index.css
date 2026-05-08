@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Bangers&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-game: "Bangers", cursive;
+}
+
+body {
+  background-color: #09090b;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+.game-font {
+  font-family: var(--font-game);
+  letter-spacing: 2px;
+}
+
+.bento-card {
+  background: rgba(24, 24, 27, 0.8);
+  border: 1px solid #27272a;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-pink {
+  color: #f472b6;
+  text-shadow: 0 0 10px rgba(244, 114, 182, 0.4);
+}
+
+.neon-cyan {
+  color: #22d3ee;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+}
+
+.neon-green {
+  color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+}
+
+.glass-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.gladiator-tag {
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  padding: 2px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.hype-bar-fill {
+  background: linear-gradient(90deg, #06b6d4, #22c55e);
+  height: 100%;
+}
