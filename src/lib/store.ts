@@ -141,7 +141,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const feedItem = {
       id: Date.now(),
       text: comboLost ? `Combo breaks! Sent to shadowban realm` : `+${pointsEarned} pt | ${reply.type.toUpperCase()}`,
-      type: comboLost ? 'loss' : ('gain' as const),
+      type: (comboLost ? 'loss' : 'gain') as 'loss' | 'gain',
     };
 
     set({

@@ -1,0 +1,42 @@
+{
+  "name": "Reply Royal Orchestrator",
+  "description": "Reply Royal platformunda çalışan ERC-8004 uyumlu AI Agent. Royal reply management, engagement automation, smart response generation ve multi-platform conversation orchestration yapan premium orchestrator.",
+  "version": "1.0.0",
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "image": "https://replyroyal.vercel.app/logo.png",
+  "wallets": {
+    "base": "0xe157F1F5e12adB38Ba013683E9Ce24efe21e5bA6"
+  },
+  "services": [
+    {
+      "name": "A2A",
+      "endpoint": "https://replyroyal.vercel.app/.well-known/agent-card.json",
+      "version": "1.0.0",
+      "description": "Agent-to-Agent communication"
+    },
+    {
+      "name": "MCP",
+      "endpoint": "https://replyroyal.vercel.app/api/mcp",
+      "version": "1.0.0",
+      "description": "Model Context Protocol - Active command execution"
+    },
+    {
+      "name": "API",
+      "endpoint": "https://replyroyal.vercel.app/api/agent",
+      "version": "1.0.0",
+      "description": "Main agent control API"
+    }
+  ],
+  "capabilities": [
+    "royal-reply-management",
+    "engagement-automation",
+    "smart-response-generation",
+    "multi-platform-orchestration",
+    "conversation-strategy",
+    "reputation-building",
+    "mcp-command-execution"
+  ],
+  "supportedChains": ["eip155:8453"],
+  "active": true,
+  "status": "online"
+}
