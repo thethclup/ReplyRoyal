@@ -35,8 +35,55 @@ async function startServer() {
   // MCP POST
   app.post("/api/mcp", (req, res) => {
     try {
-      const body = req.body;
-      const { action, command, params } = body || {};
+      const body = req.body || {};
+      const { method, params, action, command, id, jsonrpc } = body;
+
+      const createRpcResponse = (result: any) => {
+        return res.json({
+          jsonrpc: jsonrpc || "2.0",
+          id: id !== undefined ? id : null,
+          result
+        });
+      };
+
+      if (method === "tools/list") {
+        return createRpcResponse({
+          tools: [
+            { name: "get_race_status", description: "Get the current status of the race", inputSchema: { type: "object", properties: { raceId: { type: "string" } } } },
+            { name: "start_race", description: "Start a new race instance", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } },
+            { name: "get_leaderboard", description: "Get the current leaderboard", inputSchema: { type: "object", properties: {} } },
+            { name: "optimize_speed", description: "Optimize racing speed", inputSchema: { type: "object", properties: { targetSpeed: { type: "number" } } } },
+            { name: "get_track_info", description: "Get information about the track", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } }
+          ]
+        });
+      }
+
+      if (method === "prompts/list") {
+        return createRpcResponse({
+          prompts: [
+            { name: "race_strategy", description: "Prompt to analyze and optimize race strategy", arguments: [{ name: "track", description: "Track context", required: true }] }
+          ]
+        });
+      }
+
+      if (method === "resources/list") {
+        return createRpcResponse({ resources: [] });
+      }
+
+      if (method === "tools/call") {
+        return createRpcResponse({
+          content: [{ type: "text", text: `Mock execution successful for tool: ${params?.name}` }],
+          isError: false
+        });
+      }
+
+      if (method === "initialize") {
+        return createRpcResponse({
+          protocolVersion: "2024-11-05", // Standard MCP version
+          capabilities: { tools: { listChanged: true }, prompts: { listChanged: true }, resources: {} },
+          serverInfo: { name: "Reply Royal Orchestrator", version: "1.0.0" }
+        });
+      }
 
       let result: any = {};
       const actionOrCommand = action || command;

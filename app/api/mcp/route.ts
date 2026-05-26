@@ -31,14 +31,23 @@ export async function GET() {
   }, { headers: getCorsHeaders() });
 }
 
-export async function POST(req: Request) {
+  export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { method, params, action, command } = body;
+    const { method, params, action, command, id, jsonrpc } = body;
+    
+    // JSON-RPC helper
+    const createRpcResponse = (result: any) => {
+      return NextResponse.json({
+        jsonrpc: jsonrpc || "2.0",
+        id: id !== undefined ? id : null,
+        result
+      }, { headers: getCorsHeaders() });
+    };
 
     // MCP JSON-RPC standard
     if (method === "tools/list") {
-      return NextResponse.json({
+      return createRpcResponse({
         tools: [
           { name: "get_race_status", description: "Get the current status of the race", inputSchema: { type: "object", properties: { raceId: { type: "string" } } } },
           { name: "start_race", description: "Start a new race instance", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } },
@@ -46,34 +55,34 @@ export async function POST(req: Request) {
           { name: "optimize_speed", description: "Optimize racing speed", inputSchema: { type: "object", properties: { targetSpeed: { type: "number" } } } },
           { name: "get_track_info", description: "Get information about the track", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } }
         ]
-      }, { headers: getCorsHeaders() });
+      });
     }
 
     if (method === "prompts/list") {
-      return NextResponse.json({
+      return createRpcResponse({
         prompts: [
           { name: "race_strategy", description: "Prompt to analyze and optimize race strategy", arguments: [{ name: "track", description: "Track context", required: true }] }
         ]
-      }, { headers: getCorsHeaders() });
+      });
     }
 
     if (method === "resources/list") {
-      return NextResponse.json({ resources: [] }, { headers: getCorsHeaders() });
+      return createRpcResponse({ resources: [] });
     }
 
     if (method === "tools/call") {
-      return NextResponse.json({
+      return createRpcResponse({
         content: [{ type: "text", text: `Mock execution successful for tool: ${params?.name}` }],
         isError: false
-      }, { headers: getCorsHeaders() });
+      });
     }
 
     if (method === "initialize") {
-      return NextResponse.json({
-        protocolVersion: "1.0.0",
+      return createRpcResponse({
+        protocolVersion: "2024-11-05", // Standard MCP version
         capabilities: { tools: { listChanged: true }, prompts: { listChanged: true }, resources: {} },
         serverInfo: { name: "Reply Royal Orchestrator", version: "1.0.0" }
-      }, { headers: getCorsHeaders() });
+      });
     }
 
     // Agent legacy/custom command evaluation

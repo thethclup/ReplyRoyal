@@ -33,10 +33,18 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
     try {
       const body = req.body || {};
-      const { method, params, action, command } = body;
+      const { method, params, action, command, id, jsonrpc } = body;
+
+      const createRpcResponse = (result: any) => {
+        return res.status(200).json({
+          jsonrpc: jsonrpc || "2.0",
+          id: id !== undefined ? id : null,
+          result
+        });
+      };
 
       if (method === "tools/list") {
-        return res.status(200).json({
+        return createRpcResponse({
           tools: [
             { name: "get_race_status", description: "Get the current status of the race", inputSchema: { type: "object", properties: { raceId: { type: "string" } } } },
             { name: "start_race", description: "Start a new race instance", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } },
@@ -48,7 +56,7 @@ export default async function handler(req: any, res: any) {
       }
 
       if (method === "prompts/list") {
-        return res.status(200).json({
+        return createRpcResponse({
           prompts: [
             { name: "race_strategy", description: "Prompt to analyze and optimize race strategy", arguments: [{ name: "track", description: "Track context", required: true }] }
           ]
@@ -56,19 +64,19 @@ export default async function handler(req: any, res: any) {
       }
 
       if (method === "resources/list") {
-        return res.status(200).json({ resources: [] });
+        return createRpcResponse({ resources: [] });
       }
 
       if (method === "tools/call") {
-        return res.status(200).json({
+        return createRpcResponse({
           content: [{ type: "text", text: `Mock execution successful for tool: ${params?.name}` }],
           isError: false
         });
       }
 
       if (method === "initialize") {
-        return res.status(200).json({
-          protocolVersion: "1.0.0",
+        return createRpcResponse({
+          protocolVersion: "2024-11-05", // Standard MCP version
           capabilities: { tools: { listChanged: true }, prompts: { listChanged: true }, resources: {} },
           serverInfo: { name: "Reply Royal Orchestrator", version: "1.0.0" }
         });
