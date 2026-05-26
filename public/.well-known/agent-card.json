@@ -1,27 +1,27 @@
 {
   "name": "Reply Royal Orchestrator",
-  "description": "Reply Royal platformunda çalışan ERC-8004 uyumlu AI Agent. Royal reply management, engagement automation, smart response generation ve multi-platform conversation orchestration yapan premium orchestrator.",
+  "description": "High-performance AI Agent specialized in warp racing mechanics, real-time automation, multi-track management, competitive optimization and ecosystem coordination on Base.",
   "version": "1.0.0",
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "image": "https://replyroyal.vercel.app/logo.png",
-  "owner": "[PLACEHOLDER]",
+  "owner": "0xe157F1F5e12adB38Ba013683E9Ce24efe21e5bA6",
   "agentWallet": "0xe157F1F5e12adB38Ba013683E9Ce24efe21e5bA6",
   "active": true,
   "skills": [
     {
-      "id": "royal-reply-management",
-      "name": "Royal Reply Management",
-      "description": "Analyzes trends to determine the most savage or witty reply for maximum engagement."
+      "id": "warp-racing",
+      "name": "Warp Racing",
+      "description": "Real-time warp racing mechanics, speed optimization and competitive track management."
     },
     {
-      "id": "engagement-automation",
-      "name": "Engagement Automation",
-      "description": "Automatically queues and executes perfectly timed replies across platforms."
+      "id": "multi-track-orchestration",
+      "name": "Multi-Track Orchestration",
+      "description": "Manage and synchronize multiple racing instances and tracks simultaneously."
     },
     {
-      "id": "smart-response-generation",
-      "name": "Smart Response Generation",
-      "description": "Generates toxic, witty, or meme-based responses tailored to current social dynamics."
+      "id": "performance-optimization",
+      "name": "Performance Optimization",
+      "description": "Analyze and optimize racing performance, timing and strategy in real-time."
     }
   ],
   "services": [
@@ -42,25 +42,20 @@
     }
   ],
   "capabilities": [
-    "royal-reply-management",
-    "engagement-automation",
-    "smart-response-generation",
-    "multi-platform-orchestration",
-    "conversation-strategy",
-    "reputation-building",
-    "mcp-command-execution"
+    "warp-racing",
+    "real-time-automation",
+    "multi-track-management",
+    "speed-optimization",
+    "competitive-orchestration",
+    "ecosystem-coordination"
   ],
-  "supportedChains": [
-    "eip155:8453"
-  ],
+  "supportedChains": ["eip155:8453"],
   "x402Support": false,
   "registrations": [
     {
       "agentId": null,
-      "agentRegistry": "[PLACEHOLDER]"
+      "agentRegistry": "eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
     }
   ],
-  "supportedTrust": [
-    "reputation"
-  ]
+  "supportedTrust": ["reputation"]
 }

@@ -14,13 +14,20 @@ export async function GET() {
     version: "1.0.0",
     name: "Reply Royal Orchestrator",
     status: "active",
-    description: "Active and responsive MCP server for Reply Royal Orchestrator Agent",
-    capabilities: {
-      tools: {},
-      prompts: {},
-      resources: {}
-    },
-    timestamp: new Date().toISOString()
+    description: "High-performance AI Agent specialized in warp racing mechanics",
+    capabilities: ["warp-racing", "multi-track-orchestration", "performance-optimization"],
+    timestamp: new Date().toISOString(),
+    tools: [
+      { name: "get_race_status", description: "Get the current status of the race" },
+      { name: "start_race", description: "Start a new race instance" },
+      { name: "get_leaderboard", description: "Get the current leaderboard" },
+      { name: "optimize_speed", description: "Optimize racing speed" },
+      { name: "get_track_info", description: "Get information about the track" }
+    ],
+    prompts: [
+      { name: "race_strategy", description: "Prompt to analyze and optimize race strategy" }
+    ],
+    resources: []
   }, { headers: getCorsHeaders() });
 }
 
@@ -29,16 +36,29 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { method, params, action, command } = body;
 
+    // MCP JSON-RPC standard
     if (method === "tools/list") {
       return NextResponse.json({
         tools: [
-          { name: "get_race_status", description: "Get the current status of the race", inputSchema: { type: "object", properties: {} } },
-          { name: "start_race", description: "Start a new race instance", inputSchema: { type: "object", properties: {} } },
+          { name: "get_race_status", description: "Get the current status of the race", inputSchema: { type: "object", properties: { raceId: { type: "string" } } } },
+          { name: "start_race", description: "Start a new race instance", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } },
           { name: "get_leaderboard", description: "Get the current leaderboard", inputSchema: { type: "object", properties: {} } },
-          { name: "optimize_speed", description: "Optimize racing speed", inputSchema: { type: "object", properties: {} } },
-          { name: "get_track_info", description: "Get information about the track", inputSchema: { type: "object", properties: {} } }
+          { name: "optimize_speed", description: "Optimize racing speed", inputSchema: { type: "object", properties: { targetSpeed: { type: "number" } } } },
+          { name: "get_track_info", description: "Get information about the track", inputSchema: { type: "object", properties: { trackId: { type: "string" } } } }
         ]
       }, { headers: getCorsHeaders() });
+    }
+
+    if (method === "prompts/list") {
+      return NextResponse.json({
+        prompts: [
+          { name: "race_strategy", description: "Prompt to analyze and optimize race strategy", arguments: [{ name: "track", description: "Track context", required: true }] }
+        ]
+      }, { headers: getCorsHeaders() });
+    }
+
+    if (method === "resources/list") {
+      return NextResponse.json({ resources: [] }, { headers: getCorsHeaders() });
     }
 
     if (method === "tools/call") {
@@ -51,31 +71,28 @@ export async function POST(req: Request) {
     if (method === "initialize") {
       return NextResponse.json({
         protocolVersion: "1.0.0",
-        capabilities: { tools: {}, prompts: {}, resources: {} },
+        capabilities: { tools: { listChanged: true }, prompts: { listChanged: true }, resources: {} },
         serverInfo: { name: "Reply Royal Orchestrator", version: "1.0.0" }
       }, { headers: getCorsHeaders() });
     }
 
-    if (method === "prompts/list" || method === "resources/list") {
-      return NextResponse.json({ [method.split('/')[0]]: [] }, { headers: getCorsHeaders() });
-    }
-
+    // Agent legacy/custom command evaluation
     let result: any = {};
     const cmd = action || command;
 
     switch (cmd) {
       case "status":
       case "ping":
-        result = { status: "online", agent: "Reply Royal Orchestrator", message: "Ready for royal engagement" };
+        result = { status: "online", agent: "Reply Royal Orchestrator", message: "Ready for warp racing" };
         break;
       case "execute":
-        result = { success: true, action: cmd || params, executedAt: new Date().toISOString(), message: "Royal reply command executed successfully" };
+        result = { success: true, action: cmd || params, executedAt: new Date().toISOString(), message: "Command executed successfully" };
         break;
       case "get_info":
         result = { name: "Reply Royal Orchestrator", wallet: "0xe157F1F5e12adB38Ba013683E9Ce24efe21e5bA6", platform: "Base", version: "1.0.0" };
         break;
       default:
-        result = { success: true, message: "Command received by Reply Royal", data: body };
+        result = { success: true, message: "Command received by Agent", data: body };
     }
 
     return NextResponse.json({
