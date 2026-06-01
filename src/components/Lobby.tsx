@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useGameStore } from '../lib/store';
 import { useAccount, useConnect } from 'wagmi';
+import { SayGMButton } from './erc8021/SayGMButton.tsx';
 
 export function Lobby() {
   const startGame = useGameStore((state) => state.startGame);
@@ -28,6 +29,9 @@ export function Lobby() {
         </div>
 
         <div className="w-full max-w-sm space-y-4 bento-card p-6 mt-8">
+          
+          <SayGMButton />
+          
           <button
             onClick={startGame}
             className="w-full py-4 text-2xl game-font tracking-wide rounded-xl bg-pink-600 border border-pink-400 text-white shadow-[0_0_15px_rgba(219,39,119,0.4)] active:scale-95 transition-transform"
