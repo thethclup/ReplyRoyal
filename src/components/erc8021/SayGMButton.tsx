@@ -42,7 +42,7 @@ export function SayGMButton() {
       const gmHex = toHex('GM');
       
       const tx = await sendTransactionAsync({
-        to: address,
+        to: '0x0000000000000000000000000000000000008021',
         value: 0n,
         data: gmHex
       });

@@ -28,7 +28,7 @@ export function useOnchainScore() {
       setStatus('Prompting transaction...');
       // Submit a fake transaction to self with 0 value just to demonstrate attribution appending
       const tx = await sendTransactionAsync({
-        to: address,
+        to: '0x0000000000000000000000000000000000008021',
         value: 0n,
         // Empty data, hook will automatically append suffix
         data: '0x'
