@@ -3,7 +3,7 @@ import { useERC8021Transaction } from '../lib/erc8021/hooks/useERC8021Transactio
 import { useState } from 'react';
 
 export function useOnchainScore() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   
@@ -11,10 +11,11 @@ export function useOnchainScore() {
   const { sendTransactionAsync, isPending } = useERC8021Transaction({
     schema: 0,
     attributionCode: '[ATTRIBUTION_CODE]',
-    builderCode: '[BUILDER_CODE]'
+    builderCode: 'bc_1aw46v36'
   });
 
   const [status, setStatus] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   const submitScore = async (score: number) => {
     if (!isConnected) {
@@ -23,6 +24,7 @@ export function useOnchainScore() {
     }
 
     try {
+      setError(null);
       setStatus('Prompting transaction...');
       // Submit a fake transaction to self with 0 value just to demonstrate attribution appending
       const tx = await sendTransactionAsync({
@@ -32,9 +34,10 @@ export function useOnchainScore() {
         data: '0x'
       });
       setStatus(`Success! Tx Hash: ${tx}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setStatus('Failed to submit score');
+      setError(err.message || 'Failed to submit score');
+      setStatus('');
     }
   };
 
@@ -43,6 +46,8 @@ export function useOnchainScore() {
     isConnected,
     isPending,
     status,
+    error,
+    chainId,
     disconnect
   };
 }

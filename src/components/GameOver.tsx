@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../lib/store';
 import { useAccount, useSendTransaction } from 'wagmi';
 import { parseEther } from 'viem';
-import { generateAttributionPayload } from '../lib/erc8021';
 import { createReplyAgentIntent, submitToTrustlessAgent } from '../lib/erc8004';
 import { ShieldCheck, Trophy, Loader2, MessageCircle } from 'lucide-react';
 
@@ -23,9 +22,6 @@ export function GameOver() {
     
     setIsSubmitting(true);
     try {
-      // Generate ERC-8021 payload using the builder code
-      const attrPayload = generateAttributionPayload();
-      
       // Generate ERC-8004 Agent Intent
       const intent = createReplyAgentIntent(score);
       

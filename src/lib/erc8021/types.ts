@@ -7,6 +7,7 @@ export interface ERC8021Config {
 }
 
 export type ValidationLevel = 'Basic' | 'Standard' | 'Strict';
+export type SecurityLevel = ValidationLevel;
 
 export interface ValidationResult {
   valid: boolean;

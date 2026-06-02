@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount, useConnect, useSwitchChain } from 'wagmi';
+import { base } from 'wagmi/chains';
 import { useERC8021Transaction } from '../../lib/erc8021/hooks/useERC8021Transaction.ts';
 import { toHex } from 'viem';
 
 export function SayGMButton() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const { connect, connectors } = useConnect();
+  const { switchChainAsync } = useSwitchChain();
   
   const { sendTransactionAsync, isPending } = useERC8021Transaction({
     schema: 0,
@@ -27,6 +29,15 @@ export function SayGMButton() {
 
     try {
       setError(null);
+      
+      if (chainId !== base.id && chainId !== 84532) {
+        if (switchChainAsync) {
+          await switchChainAsync({ chainId: base.id });
+        } else {
+          throw new Error('Please switch to Base Mainnet.');
+        }
+      }
+
       // 'GM' in hex is 0x474d
       const gmHex = toHex('GM');
       
@@ -49,12 +60,14 @@ export function SayGMButton() {
     setTxHash(null);
   };
 
+  const explorerBase = chainId === 84532 ? 'https://sepolia.basescan.org' : 'https://basescan.org';
+
   return (
     <>
       <button
         onClick={handleSayGM}
         disabled={isPending}
-        className="relative overflow-hidden px-8 py-4 rounded-xl font-bold text-white shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600"
+        className="relative overflow-hidden px-8 py-4 rounded-xl font-bold text-white shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 w-full"
       >
         <span className="relative z-10">
           {isPending ? 'Sending GM...' : isConnected ? 'Say GM On-chain 🌅' : 'Connect to Say GM 🌅'}
@@ -66,7 +79,12 @@ export function SayGMButton() {
 
       {error && (
         <div className="mt-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200">
-          {error}
+          <p>{error}</p>
+          {error.includes('User rejected') === false && (
+             <a href={explorerBase} target="_blank" rel="noreferrer" className="underline mt-1 inline-block">
+               Check Basescan
+             </a>
+          )}
         </div>
       )}
 
@@ -94,7 +112,7 @@ export function SayGMButton() {
 
               <div className="space-y-3">
                 <a
-                  href={`https://basescan.org/tx/${txHash}`}
+                  href={`${explorerBase}/tx/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"

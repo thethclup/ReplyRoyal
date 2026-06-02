@@ -1,27 +1,7 @@
-// Mock ERC-8021 Utility functions for Transaction Attribution
-// https://eips.ethereum.org/EIPS/eip-8021 (hypothetical/mock)
-
-export const ATTRIBUTION_CODE = '[ATTRIBUTION_CODE]';
-export const BUILDER_CODE = 'bc_rarzcl2g'; // Supplied by user
-
-export interface AttributionDetails {
-  builderId: string;
-  attributionId: string;
-}
-
-export function generateAttributionPayload(): AttributionDetails {
-  console.log(`[ERC-8021] Generating attribution payload using Builder: ${BUILDER_CODE}`);
-  return {
-    builderId: BUILDER_CODE,
-    attributionId: ATTRIBUTION_CODE,
-  };
-}
-
-export function attachAttributionToTx(txData: any, payload: AttributionDetails) {
-  // In a real implementation this would format the transaction data
-  // to include the ERC-8021 attribution code in the calldata or extra data field.
-  return {
-    ...txData,
-    _attribution: payload,
-  };
-}
+// ERC-8021 — re-export from canonical modules
+export { generateERC8021Suffix, appendERC8021Calldata } from './utils';
+export { parseERC8021Calldata } from './parser';
+export { validateERC8021Config, validateERC8021Suffix } from './validation';
+export { ERC8021Registry } from './registry';
+export type { ERC8021Config, ValidationResult, SecurityLevel } from './types';
+export { ATTRIBUTION_CODE_PLACEHOLDER, BUILDER_CODE_PLACEHOLDER, ERC8021_MAGIC_BYTES } from './constants';

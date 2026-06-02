@@ -1,5 +1,5 @@
 import { useSendTransaction } from 'wagmi';
-import { appendERC8021Suffix } from '../utils.ts';
+import { appendERC8021Calldata } from '../utils.ts';
 import { ERC8021Config } from '../types.ts';
 import { SendTransactionParameters } from 'wagmi/actions';
 
@@ -9,7 +9,7 @@ export function useERC8021Transaction(config?: ERC8021Config) {
   const sendWithAttribution = async (args: SendTransactionParameters) => {
     let data = args.data || '0x';
     // Append the ERC-8021 suffix to the transaction data automatically
-    data = appendERC8021Suffix(data, config);
+    data = appendERC8021Calldata(data, config);
 
     return sendTransactionAsync({
       ...args,

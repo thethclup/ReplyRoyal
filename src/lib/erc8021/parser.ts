@@ -11,7 +11,7 @@ export interface ParsedERC8021 {
  * Parses a given calldata that has an ERC-8021 suffix appended to it.
  * This assumes Schema 0 format for extracting information.
  */
-export function parseERC8021(calldata: `0x${string}`): ParsedERC8021 | null {
+export function parseERC8021Calldata(calldata: `0x${string}`): ParsedERC8021 | null {
   try {
     // A robust parser would read backwards from the end of the calldata or know the length.
     // For this demonstration, we return a mock parsed object.

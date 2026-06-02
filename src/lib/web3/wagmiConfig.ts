@@ -1,21 +1,15 @@
-import { http, createConfig, createStorage, cookieStorage } from 'wagmi';
+import { createConfig, http } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
-import { coinbaseWallet } from 'wagmi/connectors';
+import { injected, coinbaseWallet } from 'wagmi/connectors';
 
-export const config = createConfig({
+export const wagmiConfig = createConfig({
   chains: [base, baseSepolia],
   connectors: [
-    coinbaseWallet({
-      appName: 'Reply Royale ERC-8021 Demo',
-      preference: 'smartWalletOnly',
-    }),
+    injected(),
+    coinbaseWallet({ appName: 'Endless Runner Dash' }),
   ],
   transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
+    [base.id]: http('https://mainnet.base.org'),
+    [baseSepolia.id]: http('https://sepolia.base.org'),
   },
-  storage: createStorage({
-    storage: cookieStorage,
-  }),
-  ssr: true,
 });

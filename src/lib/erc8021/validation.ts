@@ -40,3 +40,11 @@ export function validateERC8021(
     errors
   };
 }
+
+export function validateERC8021Config(config: ERC8021Config): ValidationResult {
+  return validateERC8021('0x', config, 'Standard');
+}
+
+export function validateERC8021Suffix(calldata: string, config: ERC8021Config): ValidationResult {
+  return validateERC8021(calldata, config, 'Standard');
+}
