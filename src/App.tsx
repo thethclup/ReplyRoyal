@@ -1,28 +1,23 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, useAccount } from 'wagmi';
+import { WagmiProvider, useAccount, useSendTransaction } from 'wagmi';
 import { wagmiConfig } from './lib/web3';
 import { useGameStore } from './lib/store';
 import { Lobby } from './components/Lobby';
 import { Arena } from './components/Arena';
 import { GameOver } from './components/GameOver';
 import { Sun } from 'lucide-react';
-import { useERC8021Transaction } from './lib/erc8021/hooks/useERC8021Transaction';
 import { toHex } from 'viem';
 
 const queryClient = new QueryClient();
 
 function GameHeader() {
   const { isConnected } = useAccount();
-  const { sendTransactionAsync, isPending } = useERC8021Transaction({
-    schema: 0,
-    attributionCode: '[ATTRIBUTION_CODE]',
-    builderCode: '[BUILDER_CODE]'
-  });
+  const { sendTransactionAsync, isPending } = useSendTransaction();
 
   const sendGMTransaction = async () => {
     try {
       await sendTransactionAsync({
-        to: '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3',
+        to: '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3', // GM registry or vault contract
         value: 0n,
         data: toHex('GM'),
       });

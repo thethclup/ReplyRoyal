@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../lib/store';
 import { useAccount, useSendTransaction } from 'wagmi';
-import { parseEther } from 'viem';
-import { createReplyAgentIntent, submitToTrustlessAgent } from '../lib/erc8004';
+import { parseEther, toHex } from 'viem';
 import { ShieldCheck, Trophy, Loader2, MessageCircle } from 'lucide-react';
 
 export function GameOver() {
@@ -22,15 +21,17 @@ export function GameOver() {
     
     setIsSubmitting(true);
     try {
-      // Generate ERC-8004 Agent Intent
-      const intent = createReplyAgentIntent(score);
-      
-      // Submit to agent
-      const result = await submitToTrustlessAgent(intent, address);
-      
-      if (result.success) {
-        setTxHash(result.agentTxHash);
-      }
+      // Mocking submission to a Score Contract instead of self-transfer
+      // SCORE contract address (placeholder for the actual registry)
+      const SCORE_REGISTRY = '0x1de1Ca34F0d8a59E42cf385b0351dbccCDaDe71b';
+      // Basic encode of the score
+      const data = toHex(`SCORE:${score}`);
+      const hash = await sendTransactionAsync({
+        to: SCORE_REGISTRY,
+        value: parseEther('0'),
+        data
+      });
+      setTxHash(hash);
     } catch (err) {
       console.error("Failed to commit score:", err);
     } finally {
@@ -41,11 +42,11 @@ export function GameOver() {
   const handleSayGM = async () => {
     if (!isConnected) return;
     try {
-      // Mocking a "Say GM" on-chain transaction (e.g. 0 eth to self or a specific address)
+      const GM_REGISTRY = '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3';
       const hash = await sendTransactionAsync({
-        to: address,
+        to: GM_REGISTRY,
         value: parseEther('0'),
-        data: '0x474d' // "GM" in hex
+        data: toHex('GM')
       });
       setGmHash(hash);
     } catch (err) {

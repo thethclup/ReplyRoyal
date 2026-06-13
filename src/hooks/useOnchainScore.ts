@@ -1,5 +1,4 @@
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { useERC8021Transaction } from '../lib/erc8021/hooks/useERC8021Transaction.ts';
+import { useAccount, useConnect, useDisconnect, useSendTransaction } from 'wagmi';
 import { useState } from 'react';
 
 export function useOnchainScore() {
@@ -7,12 +6,7 @@ export function useOnchainScore() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   
-  // Use the ERC8021 transaction hook with our codes
-  const { sendTransactionAsync, isPending } = useERC8021Transaction({
-    schema: 0,
-    attributionCode: '[ATTRIBUTION_CODE]',
-    builderCode: 'bc_1aw46v36'
-  });
+  const { sendTransactionAsync, isPending } = useSendTransaction();
 
   const [status, setStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +20,10 @@ export function useOnchainScore() {
     try {
       setError(null);
       setStatus('Prompting transaction...');
-      // Submit a fake transaction to self with 0 value just to demonstrate attribution appending
+      // Submitting to a placeholder registry, client auto-appends builder code
       const tx = await sendTransactionAsync({
-        to: '0x0000000000000000000000000000000000008021',
+        to: '0x1de1Ca34F0d8a59E42cf385b0351dbccCDaDe71b',
         value: 0n,
-        // Empty data, hook will automatically append suffix
         data: '0x'
       });
       setStatus(`Success! Tx Hash: ${tx}`);
@@ -51,3 +44,4 @@ export function useOnchainScore() {
     disconnect
   };
 }
+

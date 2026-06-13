@@ -40,12 +40,17 @@ export function Lobby() {
           </button>
 
           {!isConnected ? (
-            <button
-              onClick={() => connect({ connector: connectors[0] })}
-              className="w-full py-3 game-font text-xl rounded-xl bg-cyan-600 border border-cyan-400 text-white shadow-[0_0_15px_rgba(8,145,178,0.4)] active:scale-95 transition-transform flex items-center justify-center gap-2"
-            >
-              CONNECT WALLET
-            </button>
+            <div className="flex flex-col gap-2 w-full">
+              {connectors.map((connector) => (
+                <button
+                  key={connector.uid}
+                  onClick={() => connect({ connector })}
+                  className="w-full py-3 game-font text-xl rounded-xl bg-cyan-600 border border-cyan-400 text-white shadow-[0_0_15px_rgba(8,145,178,0.4)] active:scale-95 transition-transform flex items-center justify-center gap-2"
+                >
+                  CONNECT {connector.name.toUpperCase()}
+                </button>
+              ))}
+            </div>
           ) : (
             <div className="px-4 py-3 bg-white/5 rounded-xl text-xs font-mono text-zinc-300 border border-white/10 flex items-center gap-2 justify-center shadow-[0_0_10px_rgba(255,255,255,0.1)]">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>

@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAccount, useConnect, useSwitchChain } from 'wagmi';
+import { useAccount, useConnect, useSwitchChain, useSendTransaction } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { useERC8021Transaction } from '../../lib/erc8021/hooks/useERC8021Transaction.ts';
 import { toHex } from 'viem';
 
 export function SayGMButton() {
@@ -11,11 +10,7 @@ export function SayGMButton() {
   const { connect, connectors } = useConnect();
   const { switchChainAsync } = useSwitchChain();
   
-  const { sendTransactionAsync, isPending } = useERC8021Transaction({
-    schema: 0,
-    attributionCode: '[ATTRIBUTION_CODE]',
-    builderCode: 'bc_1aw46v36'
-  });
+  const { sendTransactionAsync, isPending } = useSendTransaction();
 
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +37,7 @@ export function SayGMButton() {
       const gmHex = toHex('GM');
       
       const tx = await sendTransactionAsync({
-        to: '0x0000000000000000000000000000000000008021',
+        to: '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3', // GM registry or vault contract
         value: 0n,
         data: gmHex
       });
