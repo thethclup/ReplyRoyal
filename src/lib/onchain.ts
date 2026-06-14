@@ -4,7 +4,7 @@ import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
 import { Attribution } from 'ox/erc8021';
 
 // Replace with actual builder code
-const DATA_SUFFIX = Attribution.toDataSuffix({
+export const DATA_SUFFIX = Attribution.toDataSuffix({
   codes: ["bc_rarzcl2g"],
 });
 

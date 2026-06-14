@@ -1,37 +1,61 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../lib/store';
-import { useAccount, useSendTransaction } from 'wagmi';
-import { parseEther, toHex } from 'viem';
+import { useAccount, useSendTransaction, useSendCalls, useConnect } from 'wagmi';
+import { base } from 'wagmi/chains';
+import { DATA_SUFFIX } from '../lib/onchain';
+import { parseEther, parseAbi, encodeFunctionData } from 'viem';
 import { ShieldCheck, Trophy, Loader2, MessageCircle } from 'lucide-react';
 
 export function GameOver() {
   const { score, maxCombo, setPhase } = useGameStore();
   const { address, isConnected } = useAccount();
+  const { connectors, connect } = useConnect();
   const { sendTransactionAsync } = useSendTransaction();
+  const { sendCallsAsync } = useSendCalls();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [gmHash, setGmHash] = useState<string | null>(null);
 
-  const handleRecordOnChain = async () => {
+  const handleRecordOnchain = async () => {
     if (!isConnected || !address) {
-      alert("Please connect wallet first!");
+      if (connectors.length > 0) {
+        connect({ connector: connectors[0] });
+      } else {
+        alert("Please connect wallet first!");
+      }
       return;
     }
     
     setIsSubmitting(true);
     try {
-      // Mocking submission to a Score Contract instead of self-transfer
       // SCORE contract address (placeholder for the actual registry)
       const SCORE_REGISTRY = '0x1de1Ca34F0d8a59E42cf385b0351dbccCDaDe71b';
-      // Basic encode of the score
-      const data = toHex(`SCORE:${score}`);
-      const hash = await sendTransactionAsync({
-        to: SCORE_REGISTRY,
-        value: parseEther('0'),
-        data
-      });
-      setTxHash(hash);
+      const abi = parseAbi(['function recordScore(uint256 score)']);
+      const data = encodeFunctionData({ abi, functionName: 'recordScore', args: [BigInt(score)] });
+
+      try {
+        const hash = await sendCallsAsync({
+          calls: [{
+            to: SCORE_REGISTRY,
+            value: parseEther('0'),
+            data
+          }],
+          capabilities: {
+            dataSuffix: { value: DATA_SUFFIX }
+          }
+        });
+        setTxHash(hash);
+      } catch (err) {
+        console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
+        const hash = await sendTransactionAsync({
+          to: SCORE_REGISTRY,
+          value: parseEther('0'),
+          data,
+          chainId: base.id
+        });
+        setTxHash(hash);
+      }
     } catch (err) {
       console.error("Failed to commit score:", err);
     } finally {
@@ -43,12 +67,31 @@ export function GameOver() {
     if (!isConnected) return;
     try {
       const GM_REGISTRY = '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3';
-      const hash = await sendTransactionAsync({
-        to: GM_REGISTRY,
-        value: parseEther('0'),
-        data: toHex('GM')
-      });
-      setGmHash(hash);
+      const abi = parseAbi(['function sayGM()']);
+      const data = encodeFunctionData({ abi, functionName: 'sayGM' });
+      
+      try {
+        const hash = await sendCallsAsync({
+          calls: [{
+            to: GM_REGISTRY,
+            value: parseEther('0'),
+            data
+          }],
+          capabilities: {
+            dataSuffix: { value: DATA_SUFFIX }
+          }
+        });
+        setGmHash(hash);
+      } catch (err) {
+        console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
+        const hash = await sendTransactionAsync({
+          to: GM_REGISTRY,
+          value: parseEther('0'),
+          data,
+          chainId: base.id
+        });
+        setGmHash(hash);
+      }
     } catch (err) {
       console.error("Failed GM tx:", err);
     }
@@ -84,17 +127,17 @@ export function GameOver() {
         {txHash ? (
           <div className="p-4 bg-green-950/30 border border-green-900 rounded-xl text-green-400 text-sm flex flex-col items-center gap-2">
             <ShieldCheck size={24} />
-            <span className="font-bold">Score secured On-Chain!</span>
+            <span className="font-bold">Score secured Onchain!</span>
             <span className="text-xs font-mono text-green-600 break-all">{txHash}</span>
           </div>
         ) : (
           <button
-            onClick={handleRecordOnChain}
-            disabled={isSubmitting || !isConnected}
+            onClick={handleRecordOnchain}
+            disabled={isSubmitting}
             className="w-full py-4 text-xl game-font rounded-xl bg-cyan-600 border border-cyan-400 text-white hover:bg-cyan-500 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(8,145,178,0.4)] tracking-wide"
           >
             {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : <Trophy size={20} />}
-            {isConnected ? "RECORD ON-CHAIN" : "CONNECT TO RECORD"}
+            {isConnected ? "RECORD ONCHAIN" : "CONNECT TO RECORD"}
           </button>
         )}
 
@@ -107,7 +150,7 @@ export function GameOver() {
               onClick={handleSayGM}
               className="w-full py-3 text-lg game-font tracking-wide rounded-xl glass-btn text-orange-400 border border-orange-500/50 hover:bg-orange-600/10 transition-colors flex justify-center items-center gap-2"
             >
-              <MessageCircle size={16} /> SAY "GM" ON-CHAIN
+              <MessageCircle size={16} /> SAY "GM" ONCHAIN
             </motion.button>
           )}
           {gmHash && (

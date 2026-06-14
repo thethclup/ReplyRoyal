@@ -1,27 +1,48 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, useAccount, useSendTransaction } from 'wagmi';
-import { wagmiConfig } from './lib/web3';
+import { WagmiProvider, useAccount, useSendTransaction, useSendCalls } from 'wagmi';
+import { base } from 'wagmi/chains';
+import { wagmiConfig, DATA_SUFFIX } from './lib/onchain';
 import { useGameStore } from './lib/store';
 import { Lobby } from './components/Lobby';
 import { Arena } from './components/Arena';
 import { GameOver } from './components/GameOver';
 import { Sun } from 'lucide-react';
-import { toHex } from 'viem';
+import { parseAbi, encodeFunctionData, parseEther } from 'viem';
 
 const queryClient = new QueryClient();
 
 function GameHeader() {
   const { isConnected } = useAccount();
-  const { sendTransactionAsync, isPending } = useSendTransaction();
+  const { sendTransactionAsync, isPending: isTxPending } = useSendTransaction();
+  const { sendCallsAsync } = useSendCalls();
 
   const sendGMTransaction = async () => {
     try {
-      await sendTransactionAsync({
-        to: '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3', // GM registry or vault contract
-        value: 0n,
-        data: toHex('GM'),
-      });
-      alert('GM Sent On-chain! 🌅');
+      const GM_REGISTRY = '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3';
+      const abi = parseAbi(['function sayGM()']);
+      const data = encodeFunctionData({ abi, functionName: 'sayGM' });
+
+      try {
+        await sendCallsAsync({
+          calls: [{
+            to: GM_REGISTRY,
+            value: parseEther('0'),
+            data
+          }],
+          capabilities: {
+            dataSuffix: { value: DATA_SUFFIX }
+          }
+        });
+      } catch (err) {
+        console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
+        await sendTransactionAsync({
+          to: GM_REGISTRY,
+          value: parseEther('0'),
+          data,
+          chainId: base.id
+        });
+      }
+      alert('GM Sent Onchain! 🌅');
     } catch (err: any) {
       console.error(err);
       alert(err.message || 'Failed to send GM');
@@ -34,11 +55,11 @@ function GameHeader() {
     <div className="absolute top-4 right-4 z-50">
       <button
         onClick={sendGMTransaction}
-        disabled={isPending}
+        disabled={isTxPending}
         className="px-3 py-2 rounded-lg bg-[#E8A020]/20 hover:bg-[#E8A020]/30 border border-[#E8A020]/40 text-[#E8A020] transition-colors flex items-center gap-2 font-['Cinzel'] text-xs font-bold disabled:opacity-50"
       >
         <Sun className="w-4 h-4" />
-        {isPending ? 'Sending...' : 'Say GM'}
+        {isTxPending ? 'Sending...' : 'Say GM'}
       </button>
     </div>
   );

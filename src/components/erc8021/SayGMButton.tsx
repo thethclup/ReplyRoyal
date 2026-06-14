@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAccount, useConnect, useSwitchChain, useSendTransaction } from 'wagmi';
+import { useAccount, useConnect, useSwitchChain, useSendTransaction, useSendCalls } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { toHex } from 'viem';
+import { DATA_SUFFIX } from '../../lib/onchain';
+import { parseAbi, encodeFunctionData, parseEther } from 'viem';
 
 export function SayGMButton() {
   const { address, isConnected, chainId } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChainAsync } = useSwitchChain();
   
-  const { sendTransactionAsync, isPending } = useSendTransaction();
+  const { sendTransactionAsync, isPending: isTxPending } = useSendTransaction();
+  const { sendCallsAsync } = useSendCalls();
 
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,16 +35,33 @@ export function SayGMButton() {
         }
       }
 
-      // 'GM' in hex is 0x474d
-      const gmHex = toHex('GM');
+      const GM_REGISTRY = '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3';
+      const abi = parseAbi(['function sayGM()']);
+      const data = encodeFunctionData({ abi, functionName: 'sayGM' });
       
-      const tx = await sendTransactionAsync({
-        to: '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3', // GM registry or vault contract
-        value: 0n,
-        data: gmHex
-      });
+      try {
+        const tx = await sendCallsAsync({
+          calls: [{
+            to: GM_REGISTRY,
+            value: parseEther('0'),
+            data
+          }],
+          capabilities: {
+            dataSuffix: { value: DATA_SUFFIX }
+          }
+        });
+        setTxHash(tx);
+      } catch (err) {
+        console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
+        const tx = await sendTransactionAsync({
+          to: GM_REGISTRY,
+          value: parseEther('0'),
+          data,
+          chainId: base.id
+        });
+        setTxHash(tx);
+      }
       
-      setTxHash(tx);
       setShowModal(true);
     } catch (err: any) {
       console.error(err);
@@ -61,13 +80,13 @@ export function SayGMButton() {
     <>
       <button
         onClick={handleSayGM}
-        disabled={isPending}
+        disabled={isTxPending}
         className="relative overflow-hidden px-8 py-4 rounded-xl font-bold text-white shadow-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 w-full"
       >
         <span className="relative z-10">
-          {isPending ? 'Sending GM...' : isConnected ? 'Say GM On-chain 🌅' : 'Connect to Say GM 🌅'}
+          {isTxPending ? 'Sending GM...' : isConnected ? 'Say GM Onchain 🌅' : 'Connect to Say GM 🌅'}
         </span>
-        {isPending && (
+        {isTxPending && (
           <div className="absolute inset-0 bg-white/20 animate-pulse" />
         )}
       </button>
@@ -92,7 +111,7 @@ export function SayGMButton() {
                 <span className="text-3xl">🎉</span>
               </div>
               <h3 className="text-2xl font-bold text-zinc-900 mb-2">
-                GM Sent On-chain!
+                GM Sent Onchain!
               </h3>
               <p className="text-zinc-500 mb-6 font-medium">
                 Your morning greeting has been permanently recorded on Base.
