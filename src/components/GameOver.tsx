@@ -35,7 +35,7 @@ export function GameOver() {
       const data = encodeFunctionData({ abi, functionName: 'recordScore', args: [BigInt(score)] });
 
       try {
-        const hash = await sendCallsAsync({
+        const tx = await sendCallsAsync({
           calls: [{
             to: SCORE_REGISTRY,
             value: parseEther('0'),
@@ -45,8 +45,13 @@ export function GameOver() {
             dataSuffix: { value: DATA_SUFFIX }
           }
         });
-        setTxHash(hash);
-      } catch (err) {
+        setTxHash(typeof tx === 'string' ? tx : (tx as any).id || (tx as any).hash);
+      } catch (err: any) {
+        if (err?.message?.includes('User rejected') || err?.message?.includes('User denied')) {
+          console.log("User rejected the request.");
+          setIsSubmitting(false);
+          return;
+        }
         console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
         const hash = await sendTransactionAsync({
           to: SCORE_REGISTRY,
@@ -56,8 +61,12 @@ export function GameOver() {
         });
         setTxHash(hash);
       }
-    } catch (err) {
-      console.error("Failed to commit score:", err);
+    } catch (err: any) {
+      if (err?.message?.includes('User rejected') || err?.message?.includes('User denied')) {
+        console.log("User rejected the transaction.");
+      } else {
+        console.error("Failed to commit score:", err);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -71,7 +80,7 @@ export function GameOver() {
       const data = encodeFunctionData({ abi, functionName: 'sayGM' });
       
       try {
-        const hash = await sendCallsAsync({
+        const tx = await sendCallsAsync({
           calls: [{
             to: GM_REGISTRY,
             value: parseEther('0'),
@@ -81,8 +90,12 @@ export function GameOver() {
             dataSuffix: { value: DATA_SUFFIX }
           }
         });
-        setGmHash(hash);
-      } catch (err) {
+        setGmHash(typeof tx === 'string' ? tx : (tx as any).id || (tx as any).hash);
+      } catch (err: any) {
+        if (err?.message?.includes('User rejected') || err?.message?.includes('User denied')) {
+          console.log("User rejected the GM request.");
+          return;
+        }
         console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
         const hash = await sendTransactionAsync({
           to: GM_REGISTRY,
@@ -92,8 +105,12 @@ export function GameOver() {
         });
         setGmHash(hash);
       }
-    } catch (err) {
-      console.error("Failed GM tx:", err);
+    } catch (err: any) {
+      if (err?.message?.includes('User rejected') || err?.message?.includes('User denied')) {
+        console.log("User rejected the GM transaction.");
+      } else {
+        console.error("Failed GM tx:", err);
+      }
     }
   };
 

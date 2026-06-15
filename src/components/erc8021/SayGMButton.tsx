@@ -50,8 +50,11 @@ export function SayGMButton() {
             dataSuffix: { value: DATA_SUFFIX }
           }
         });
-        setTxHash(tx);
-      } catch (err) {
+        setTxHash(typeof tx === 'string' ? tx : (tx as any).id || (tx as any).hash);
+      } catch (err: any) {
+        if (err?.message?.includes('User rejected') || err?.message?.includes('User denied')) {
+           throw new Error("User rejected the request.");
+        }
         console.log("sendCallsAsync Failed, falling back to sendTransactionAsync", err);
         const tx = await sendTransactionAsync({
           to: GM_REGISTRY,
@@ -65,7 +68,7 @@ export function SayGMButton() {
       setShowModal(true);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to send GM');
+      setError(err?.message?.includes('User rejected') || err?.message?.includes('User denied') ? "User rejected the transaction." : err.message || 'Failed to send GM');
     }
   };
 
