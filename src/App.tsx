@@ -18,16 +18,18 @@ function GameHeader() {
 
   const sendGMTransaction = async () => {
     try {
-      const GM_REGISTRY = '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3';
+      const GM_REGISTRY = (import.meta.env.VITE_GM_REGISTRY_ADDRESS || '0xcD0dd3716C5561De47a24949335dF8a8CD8F71a3') as `0x${string}`;
       const abi = parseAbi(['function sayGM()']);
-      const data = encodeFunctionData({ abi, functionName: 'sayGM' });
+      const rawData = encodeFunctionData({ abi, functionName: 'sayGM' });
+      // Append Builder Code data suffix (EIP-8021) to the calldata for EOA wallets
+      const dataWithSuffix = `${rawData}${DATA_SUFFIX.replace('0x', '')}` as `0x${string}`;
 
       try {
         await sendCallsAsync({
           calls: [{
             to: GM_REGISTRY,
             value: parseEther('0'),
-            data
+            data: rawData
           }],
           capabilities: {
             dataSuffix: { value: DATA_SUFFIX }
@@ -38,7 +40,7 @@ function GameHeader() {
         await sendTransactionAsync({
           to: GM_REGISTRY,
           value: parseEther('0'),
-          data,
+          data: dataWithSuffix,
           chainId: base.id
         });
       }
